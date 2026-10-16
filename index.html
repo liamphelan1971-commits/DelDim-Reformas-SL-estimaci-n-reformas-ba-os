@@ -1,0 +1,1236 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#2C4A4E">
+<meta name="description" content="Estimador de reformas de baño de DELDIM REFORMAS S.L.">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Estimador baños">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>html{color-scheme:light}[hidden]{display:none!important}body{margin:0}img{max-width:100%}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style>
+<title>Estimador de baños DELDIM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap">
+<style>
+/* Concepto: hoja de obra. Una columna en móvil con barra de total fija abajo; desde 1000 px el formulario a la izquierda y la estimación fija a la derecha.
+   Paleta de marca DELDIM: Negro Teja, Azul Plano, Terracota Ladrillo, Ocre Mortero, Piedra Cálida. El terracota solo marca avisos y "recomendado". */
+:root{
+  --bg:#F4F0E8; --surface:#FBF9F4; --surface2:#ECE6DA; --line:#DDD5C6;
+  --ink:#1C1B1A; --muted:#675F54;
+  --accent:#2C4A4E; --on-accent:#FFFFFF; --accent-soft:#DCE6E5;
+  --warn:#A8492D; --warn-soft:#F3DDD3; --ocre:#D9A44E; --ocre-soft:#F5E6C6; --ok:#2F6B4F; --ok-soft:#DCEBE2;
+  --font:"Manrope",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --r:10px; --gutter:16px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#151413; --surface:#1E1D1B; --surface2:#2A2825; --line:#3A3731;
+  --ink:#EEE9DE; --muted:#A8A092;
+  --accent:#86B6BA; --on-accent:#0F1A1B; --accent-soft:#233638;
+  --warn:#E69A80; --warn-soft:#3B2720; --ocre:#E2B462; --ocre-soft:#3A3120; --ok:#86C7A4; --ok-soft:#1F3328; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#151413; --surface:#1E1D1B; --surface2:#2A2825; --line:#3A3731;
+  --ink:#EEE9DE; --muted:#A8A092;
+  --accent:#86B6BA; --on-accent:#0F1A1B; --accent-soft:#233638;
+  --warn:#E69A80; --warn-soft:#3B2720; --ocre:#E2B462; --ocre-soft:#3A3120; --ok:#86C7A4; --ok-soft:#1F3328; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.45;
+  padding-block:0 96px;padding-left:max(var(--gutter),env(safe-area-inset-left,0px));padding-right:max(var(--gutter),env(safe-area-inset-right,0px));
+  font-variant-numeric:tabular-nums;-webkit-text-size-adjust:100%}
+h1,h2,h3{margin:0;font-weight:800;letter-spacing:-.01em;text-wrap:balance}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrapper{max-width:1180px;margin-inline:auto}
+
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:14px 8px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.logo{height:46px;width:auto;border-radius:4px;background:#fff;padding:2px}
+.brand h1{font-size:20px}
+.brand p{margin:0;font-size:13px;color:var(--muted)}
+.top-actions{display:flex;gap:8px}
+.btn{min-height:42px;padding:0 16px;border-radius:var(--r);border:1px solid var(--line);background:var(--surface);font-weight:700;cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.btn.primary:disabled{opacity:.6;cursor:progress}
+.btn.small{min-height:34px;padding:0 12px;font-size:13px}
+.btn.warn{border-color:var(--warn);color:var(--warn)}
+
+.wrap{display:grid;grid-template-columns:minmax(0,1fr);gap:20px;align-items:start}
+@media (min-width:1000px){.wrap{grid-template-columns:minmax(0,1fr) 400px;gap:32px}.result{position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto}.bar{display:none!important}body{padding-bottom:40px}}
+
+.panel{padding-block:18px;border-top:1px solid var(--line)}
+.panel:first-child{border-top:0}
+.panel>h2{font-size:12px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-bottom:12px;font-weight:700}
+.panel .note{font-size:13px;color:var(--muted);margin:8px 0 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+.grid.c3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.field{display:flex;flex-direction:column;gap:5px;min-width:0}
+.field>label,.lbl{font-size:12.5px;font-weight:700;color:var(--muted)}
+.field input,.field select,.field textarea,.num{width:100%;min-height:44px;padding:9px 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface);font-size:16px}
+.field textarea{min-height:76px;resize:vertical}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent)}
+.hint{font-size:12.5px;color:var(--muted);min-height:1em}
+.hint.ok{color:var(--ok)}.hint.bad{color:var(--warn)}
+.span2{grid-column:1/-1}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.mt{margin-top:14px}
+
+.chk{display:flex;align-items:center;gap:10px;min-height:40px;cursor:pointer;font-size:14.5px}
+.chk input{width:20px;height:20px;accent-color:var(--accent);flex:none;margin:0}
+.chks{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));column-gap:16px}
+.gtitle{font-size:12.5px;font-weight:800;margin:14px 0 2px;color:var(--ink)}
+.gtitle:first-child{margin-top:0}
+
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:var(--surface);max-width:100%}
+.seg label{position:relative;cursor:pointer}
+.seg input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.seg span{display:block;padding:10px 16px;font-weight:700;font-size:14px;min-height:42px}
+.seg input:checked+span{background:var(--accent);color:var(--on-accent)}
+.seg input:focus-visible+span{outline:2px solid var(--accent);outline-offset:-3px}
+.seg label+label{border-left:1px solid var(--line)}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.card{position:relative;display:flex;flex-direction:column;gap:6px;padding:14px;border:1.5px solid var(--line);border-radius:12px;background:var(--surface);cursor:pointer;min-width:0}
+.card input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.card:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
+.card:has(input:focus-visible){outline:2px solid var(--accent);outline-offset:2px}
+.card h3{font-size:16px}
+.card p{margin:0;font-size:13px;color:var(--muted)}
+.card .price{font-weight:800;font-size:17px;margin-top:auto;padding-top:6px}
+.card .price small{font-weight:600;color:var(--muted);font-size:12px}
+.tag{display:inline-block;align-self:flex-start;font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:99px;background:var(--ocre-soft);color:var(--ink)}
+.tag.rec{background:var(--warn-soft);color:var(--warn)}
+
+.box{padding:12px 14px;border-radius:var(--r);background:var(--surface2);font-size:13.5px}
+.box.warn{background:var(--warn-soft)}
+.box ul{margin:6px 0 0;padding-left:18px}
+.box li{margin:3px 0}
+.chip{display:inline-block;font-size:12px;font-weight:800;padding:3px 10px;border-radius:99px;background:var(--ok-soft);color:var(--ok)}
+.chip.mid{background:var(--ocre-soft);color:var(--ink)}
+.chip.high{background:var(--warn-soft);color:var(--warn)}
+
+.result .in{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px}
+.result h2{font-size:12px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:700;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.big{font-size:38px;font-weight:800;letter-spacing:-.02em;line-height:1.1;margin:8px 0 2px}
+.sub{font-size:13.5px;color:var(--muted)}
+.tierlist{display:grid;gap:6px;margin:16px 0}
+.tierrow{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);cursor:pointer;text-align:left;width:100%}
+.tierrow[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.tierrow b{font-weight:700}.tierrow span{font-size:13px;color:var(--muted)}.tierrow strong{font-weight:800}
+details.cap{border-top:1px solid var(--line)}
+details.cap summary{display:flex;justify-content:space-between;gap:10px;padding:10px 0;cursor:pointer;font-weight:700;font-size:14px;list-style:none}
+details.cap summary::-webkit-details-marker{display:none}
+details.cap summary::before{content:"▸";margin-right:8px;color:var(--muted);flex:none}
+details.cap[open] summary::before{content:"▾"}
+details.cap summary .t{flex:1;min-width:0}
+.ln{display:grid;grid-template-columns:42px 1fr auto;gap:8px;padding:6px 0 6px 0;font-size:13px;border-top:1px dashed var(--line)}
+.ln .c{color:var(--muted);font-size:11.5px;padding-top:2px}
+.ln .d{display:block;color:var(--muted);font-size:12px}
+.ln .q{color:var(--muted);font-size:12px;white-space:nowrap}
+.ln b{white-space:nowrap}
+.int{margin-top:12px;font-size:13px}
+.msg{margin-top:12px;font-size:13.5px;min-height:1.2em}
+.msg.warn{color:var(--warn);font-weight:700}.msg.ok{color:var(--ok);font-weight:700}
+.actions{display:grid;gap:8px;margin-top:14px}
+.link{background:none;border:0;padding:0;color:var(--accent);font-weight:700;text-decoration:underline;cursor:pointer;font-size:13px}
+
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--surface);border-top:1px solid var(--line);
+  padding:10px max(var(--gutter),env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(var(--gutter),env(safe-area-inset-left,0px))}
+.bar .t{min-width:0}.bar .t small{display:block;font-size:12px;color:var(--muted)}.bar .t b{font-size:21px;font-weight:800}
+
+.sheet{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.5);display:flex;justify-content:flex-end}
+.sheet[hidden]{display:none}
+.sheet .in{width:min(600px,100%);height:100%;overflow:auto;background:var(--bg);
+  padding:calc(16px + env(safe-area-inset-top,0px)) max(var(--gutter),env(safe-area-inset-right,0px)) calc(24px + env(safe-area-inset-bottom,0px)) max(var(--gutter),env(safe-area-inset-left,0px))}
+.sheet h2{font-size:20px;text-transform:none;letter-spacing:-.01em;color:var(--ink)}
+.sheet .head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px}
+.sheet h3{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:22px 0 10px}
+.prow{padding:10px 0;border-top:1px solid var(--line)}
+.prow .n{font-size:13px;font-weight:600;margin-bottom:6px}.prow .n i{font-style:normal;color:var(--muted);font-weight:500;margin-right:6px;font-size:12px}
+.prow .ins{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.prow .ins label{font-size:11.5px;color:var(--muted);font-weight:700;display:flex;flex-direction:column;gap:3px}
+.prow .ins input{min-height:40px;padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);font-size:15px;width:100%;min-width:0}
+.prow .ins input.chg{border-color:var(--ocre);background:var(--ocre-soft)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(86px + env(safe-area-inset-bottom,0px));z-index:50;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:99px;font-size:13.5px;font-weight:700;max-width:calc(100% - 32px)}
+.toast[hidden]{display:none}
+@media (min-width:1000px){.toast{bottom:24px}}
+@media (prefers-reduced-motion:no-preference){.card,.tierrow,.btn{transition:border-color .15s,background-color .15s}}
+</style>
+</head>
+<body>
+<div class="wrapper">
+<header class="top">
+  <div class="brand">
+    <img class="logo" id="logo" alt="DELDIM Reformas SL">
+    <div><h1>Estimador de baños</h1><p>Estimación inicial en pocos minutos</p></div>
+  </div>
+  <div class="top-actions">
+    <button class="btn" id="btnNuevo" data-act="nuevo" type="button">Nuevo</button>
+    <button class="btn" data-act="ajustes" type="button">Ajustes</button>
+  </div>
+</header>
+
+<main class="wrap">
+<div class="form">
+
+<section class="panel">
+  <h2>Cliente</h2>
+  <div class="grid">
+    <div class="field span2"><label for="f-nombre">Nombre y apellidos o razón social</label><input id="f-nombre" data-k="nombre" autocomplete="off" placeholder="Ej.: Ana García Ruiz"></div>
+    <div class="field"><label for="f-doc">DNI / NIE / CIF</label><input id="f-doc" data-k="doc" autocomplete="off" autocapitalize="characters" placeholder="Ej.: 12345678Z"><div class="hint" id="docHint"></div></div>
+    <div class="field"><label for="f-tel">Teléfono</label><input id="f-tel" data-k="tel" type="tel" autocomplete="off" placeholder="Ej.: 600 123 456"></div>
+    <div class="field span2"><label for="f-email">Email</label><input id="f-email" data-k="email" type="email" autocomplete="off" placeholder="Ej.: ana@correo.com"></div>
+    <div class="field span2"><label for="f-calle">Dirección de la obra</label><input id="f-calle" data-k="calle" autocomplete="off" placeholder="Calle, número, piso y puerta"></div>
+    <div class="field"><label for="f-cp">Código postal</label><input id="f-cp" data-k="cp" inputmode="numeric" autocomplete="off" placeholder="29005"></div>
+    <div class="field"><label for="f-muni">Municipio</label><input id="f-muni" data-k="muni" autocomplete="off"></div>
+  </div>
+  <p class="note">Los datos del cliente se guardan solo en este dispositivo, hasta que pulses «Nuevo».</p>
+</section>
+
+<section class="panel">
+  <h2>Inmueble</h2>
+  <div class="row">
+    <div class="seg" role="radiogroup" aria-label="Tipo de inmueble">
+      <label><input type="radio" name="tipo" value="piso" data-k="tipo"><span>Piso</span></label>
+      <label><input type="radio" name="tipo" value="casa" data-k="tipo"><span>Casa o chalet</span></label>
+    </div>
+  </div>
+  <div class="grid mt" id="pisoOnly">
+    <div class="field"><label for="f-planta">Planta (0 = baja)</label><input id="f-planta" data-k="planta" type="number" min="0" max="30" step="1" inputmode="numeric"></div>
+    <label class="chk" style="align-self:end"><input type="checkbox" data-k="ascensor"> Tiene ascensor</label>
+  </div>
+  <div class="grid mt">
+    <div class="field span2"><label for="f-uso">Uso de la vivienda</label>
+      <select id="f-uso" data-k="uso">
+        <option value="particular">Vivienda de uso particular (habitual o segunda residencia)</option>
+        <option value="turistico">Alquiler turístico u otra actividad</option>
+        <option value="local">Local, oficina o empresa</option>
+      </select></div>
+  </div>
+  <label class="chk"><input type="checkbox" data-k="antiguedad"> La vivienda se terminó hace más de 2 años</label>
+  <div class="gtitle" style="margin-top:12px">Aspectos a vigilar</div>
+  <label class="chk"><input type="checkbox" data-k="flags.edificioAntiguo"> Edificio o instalaciones antiguas (tuberías, cableado)</label>
+  <label class="chk"><input type="checkbox" data-k="flags.sinVentilacion"> El baño no tiene salida de ventilación a patio o fachada</label>
+  <label class="chk"><input type="checkbox" data-k="flags.redistribucion"> Quiere cambiar la distribución (mover inodoro, ducha o desagües)</label>
+  <div class="box mt" id="avisosBox"></div>
+</section>
+
+<section class="panel">
+  <h2>El baño</h2>
+  <div class="grid c3">
+    <div class="field"><label for="f-largo">Largo (m)</label><input id="f-largo" data-k="largo" type="number" min="0.8" max="10" step="0.05" inputmode="decimal"></div>
+    <div class="field"><label for="f-ancho">Ancho (m)</label><input id="f-ancho" data-k="ancho" type="number" min="0.8" max="10" step="0.05" inputmode="decimal"></div>
+    <div class="field"><label for="f-alt">Altura (m)</label><input id="f-alt" data-k="altura" type="number" min="2" max="4" step="0.05" inputmode="decimal"></div>
+  </div>
+  <div class="row mt">
+    <div><div class="lbl" style="margin-bottom:5px">Alicatado</div>
+      <div class="seg" role="radiogroup" aria-label="Alicatado">
+        <label><input type="radio" name="alic" value="completo" data-k="alicatado"><span>Hasta el techo</span></label>
+        <label><input type="radio" name="alic" value="parcial" data-k="alicatado"><span>Parcial</span></label>
+      </div></div>
+    <div><div class="lbl" style="margin-bottom:5px">Ducha o bañera</div>
+      <div class="seg" role="radiogroup" aria-label="Ducha o bañera">
+        <label><input type="radio" name="ducha" value="ducha" data-k="ducha"><span>Ducha</span></label>
+        <label><input type="radio" name="ducha" value="banera" data-k="ducha"><span>Bañera</span></label>
+        <label><input type="radio" name="ducha" value="ninguna" data-k="ducha"><span>Ninguna</span></label>
+      </div></div>
+  </div>
+  <div class="mt">
+    <label class="chk"><input type="checkbox" data-k="ventana"> El baño tiene ventana</label>
+    <label class="chk"><input type="checkbox" data-k="techoExistente"> Ya tiene falso techo (hay que retirarlo)</label>
+  </div>
+  <p class="note" id="geomRead"></p>
+</section>
+
+<section class="panel">
+  <h2>Gama de acabados y sanitarios</h2>
+  <div class="cards" id="tiers"></div>
+</section>
+
+<section class="panel">
+  <h2>Alcance de la obra</h2>
+  <div id="alcance"></div>
+</section>
+
+<section class="panel">
+  <h2>Escombros y cuba</h2>
+  <div class="cards" id="resCards"></div>
+  <div class="box mt" id="resInfo"></div>
+</section>
+
+<section class="panel">
+  <h2>IVA, pago y notas</h2>
+  <div class="row">
+    <div><div class="lbl" style="margin-bottom:5px">IVA</div>
+      <div class="seg" role="radiogroup" aria-label="IVA">
+        <label><input type="radio" name="iva" value="10" data-k="iva" data-type="n"><span>10 %</span></label>
+        <label><input type="radio" name="iva" value="21" data-k="iva" data-type="n"><span>21 %</span></label>
+      </div></div>
+    <div class="field" style="width:150px"><label for="f-dto">Descuento (%)</label><input id="f-dto" data-k="dto" type="number" min="0" max="50" step="0.5" inputmode="decimal"></div>
+  </div>
+  <p class="note" id="ivaHint"></p>
+  <div class="gtitle" style="margin-top:18px">Forma de pago (% sobre el total con IVA)</div>
+  <div class="grid c3">
+    <div class="field"><label for="f-p0">Aceptación</label><input id="f-p0" data-k="pago.0" type="number" min="0" max="100" step="5" inputmode="numeric"></div>
+    <div class="field"><label for="f-p1">Mitad de obra</label><input id="f-p1" data-k="pago.1" type="number" min="0" max="100" step="5" inputmode="numeric"></div>
+    <div class="field"><label for="f-p2">Final de obra</label><input id="f-p2" data-k="pago.2" type="number" min="0" max="100" step="5" inputmode="numeric"></div>
+  </div>
+  <div class="hint" id="pagoHint"></div>
+  <div class="grid mt">
+    <div class="field span2"><label for="f-libred">Partida adicional (opcional)</label><input id="f-libred" data-k="libreDesc" placeholder="Ej.: Sustitución de bajante del baño"></div>
+    <div class="field"><label for="f-libri">Importe sin IVA (€)</label><input id="f-libri" data-k="libreImp" type="number" step="10" inputmode="decimal"></div>
+    <div class="field"><label for="f-num">Nº de presupuesto</label><input id="f-num" data-k="numero" autocomplete="off"></div>
+    <div class="field span2"><label for="f-obs">Observaciones para el cliente (salen en el PDF)</label><textarea id="f-obs" data-k="obs" placeholder="Ej.: Acceso por el portal trasero. Obra a partir de noviembre."></textarea></div>
+  </div>
+</section>
+
+</div>
+
+<aside class="result" id="resultado">
+ <div class="in">
+  <h2><span>Estimación</span><span class="chip mid" id="tierChip"></span></h2>
+  <div class="big" id="bigTotal"></div>
+  <div class="sub" id="subTotal"></div>
+  <div class="sub" id="horq" style="margin-top:4px"></div>
+  <div class="tierlist" id="tierList"></div>
+  <div id="desglose"></div>
+  <div class="int box" id="interno"></div>
+  <div class="row mt" style="align-items:center">
+    <div><div class="lbl" style="margin-bottom:5px">Idioma del PDF</div>
+      <div class="seg" role="radiogroup" aria-label="Idioma del PDF">
+        <label><input type="radio" name="lang" value="es" data-k="lang"><span>Español</span></label>
+        <label><input type="radio" name="lang" value="en" data-k="lang"><span>English</span></label>
+      </div></div>
+  </div>
+  <label class="chk"><input type="checkbox" data-k="comparar"> Incluir comparativa de las tres gamas</label>
+  <div class="actions">
+    <button class="btn primary" id="btnPdf" data-act="pdf" type="button">Generar PDF para el cliente</button>
+    <button class="btn" data-act="copiar" type="button">Copiar resumen para WhatsApp</button>
+  </div>
+  <div class="msg" id="msg" role="status" aria-live="polite"></div>
+ </div>
+</aside>
+</main>
+</div>
+
+<div class="bar" id="bar">
+  <div class="t"><small id="barLbl">Total con IVA</small><b id="barTotal"></b></div>
+  <button class="btn primary" data-act="pdf" type="button" id="btnPdf2">Generar PDF</button>
+</div>
+
+<div class="sheet" id="sheet" hidden>
+  <div class="in" role="dialog" aria-modal="true" aria-label="Ajustes">
+    <div class="head"><h2>Ajustes</h2><button class="btn small" data-act="cerrar" type="button">Cerrar</button></div>
+    <p class="note" style="margin:0">Se guardan solo en este dispositivo. Los precios son orientativos de mercado hasta que Rolando los valide.</p>
+    <h3>Datos de la empresa (salen en el PDF)</h3>
+    <div class="grid">
+      <div class="field span2"><label for="a-razon">Razón social</label><input id="a-razon" data-sk="company.razon"></div>
+      <div class="field"><label for="a-cif">CIF</label><input id="a-cif" data-sk="company.cif" placeholder="Pendiente"></div>
+      <div class="field"><label for="a-tel">Teléfono</label><input id="a-tel" data-sk="company.telefono"></div>
+      <div class="field span2"><label for="a-dom">Domicilio</label><input id="a-dom" data-sk="company.domicilio" placeholder="Pendiente"></div>
+      <div class="field"><label for="a-mail">Email</label><input id="a-mail" data-sk="company.email"></div>
+      <div class="field"><label for="a-web">Web</label><input id="a-web" data-sk="company.web"></div>
+      <div class="field span2"><label for="a-iban">IBAN para transferencias (opcional)</label><input id="a-iban" data-sk="company.iban" placeholder="ES00 0000 0000 0000 0000 0000"></div>
+    </div>
+    <h3>Condiciones generales</h3>
+    <div class="grid c3">
+      <div class="field"><label for="a-val">Validez (días)</label><input id="a-val" data-sk="validez" type="number" min="1" step="1" inputmode="numeric"></div>
+      <div class="field"><label for="a-rm">Horquilla − (%)</label><input id="a-rm" data-sk="rMenos" type="number" min="0" step="1" inputmode="numeric"></div>
+      <div class="field"><label for="a-rp">Horquilla + (%)</label><input id="a-rp" data-sk="rMas" type="number" min="0" step="1" inputmode="numeric"></div>
+    </div>
+    <div class="grid mt"><div class="field"><label for="a-fac">Ajuste general de precios (%)</label><input id="a-fac" data-sk="factor" type="number" step="0.5" inputmode="decimal"></div></div>
+    <h3>Precios unitarios sin IVA (€)</h3>
+    <div class="note" style="margin:0 0 6px">Los campos en ocre son precios que has cambiado. La carga de escombros (01.05) se multiplica por el factor de acceso de la vivienda.</div>
+    <div id="precios"></div>
+    <div class="mt"><button class="btn warn small" data-act="resetPrecios" type="button">Restablecer precios originales</button></div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+const LOGO="data:image/jpeg;base64,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";
+/* ====== CONFIGURACIÓN DE LA EMPRESA (editar aquí: CIF, domicilio, IBAN) ====== */
+const EMPRESA = {
+  razon: "DELDIM REFORMAS S.L.",
+  cif: "",
+  domicilio: "",
+  telefono: "+34 692 13 64 50",
+  email: "info@deldimreformas.com",
+  web: "www.deldimreformas.com",
+  iban: ""
+};
+/* ===== NÚCLEO: precios, cálculo y PDF (sin DOM) ===== */
+"use strict";
+
+const TIERS = [
+  { es: "Básica", en: "Basic",
+    bes: "Porcelánico y azulejo económicos, sanitario blanco estándar, mueble de lavabo sencillo y grifería monomando.",
+    ben: "Entry-level porcelain tile, standard white sanitaryware, simple vanity unit and single-lever taps." },
+  { es: "Media", en: "Mid-range",
+    bes: "Porcelánico de gama media, inodoro suspendido con cisterna empotrada, mueble suspendido y grifería termostática.",
+    ben: "Mid-range porcelain tile, wall-hung WC with concealed cistern, wall-hung vanity unit and thermostatic taps." },
+  { es: "Alta", en: "Premium",
+    bes: "Gran formato rectificado, sanitarios suspendidos de diseño, ducha a medida, grifería empotrada y mampara sin perfiles.",
+    ben: "Rectified large-format tile, designer wall-hung sanitaryware, made-to-measure shower, concealed taps and frameless screen." }
+];
+
+const CAPS = {
+  1: { es: "Demoliciones y desescombro", en: "Demolition and clearance" },
+  2: { es: "Fontanería y saneamiento", en: "Plumbing and drainage" },
+  3: { es: "Albañilería y revestimientos", en: "Masonry and tiling" },
+  4: { es: "Falso techo y pintura", en: "Suspended ceiling and painting" },
+  5: { es: "Electricidad y ventilación", en: "Electrical and ventilation" },
+  6: { es: "Sanitarios y grifería", en: "Sanitaryware and taps" },
+  7: { es: "Carpintería", en: "Carpentry" },
+  8: { es: "Protecciones y limpieza", en: "Protection and cleaning" },
+  9: { es: "Gestión de residuos", en: "Waste management" },
+  10: { es: "Otros", en: "Other" }
+};
+
+/* Precios de venta (sin IVA), materiales y mano de obra incluidos. Orden de p: [Básica, Media, Alta].
+   mat = parte aproximada del importe que es material (solo uso interno, regla del 40 % de IVA). */
+const ITEMS = [
+  { id: "01.01", cap: 1, k: "demol", ud: "ud", p: [160, 160, 160], mat: 0, q: c => 1,
+    n: ["Desmontaje de sanitarios, mueble, accesorios y mamparas existentes", "Removal of existing sanitaryware, vanity, accessories and screens"] },
+  { id: "01.02", cap: 1, k: "demol", ud: "m²", p: [14, 14, 14], mat: 0, q: c => c.g.paredes,
+    n: ["Demolición de alicatado en paredes", "Demolition of existing wall tiling"] },
+  { id: "01.03", cap: 1, k: "demol", ud: "m²", p: [22, 22, 22], mat: 0, q: c => c.g.S,
+    n: ["Demolición de pavimento y capa de nivelación", "Demolition of existing floor and screed"] },
+  { id: "01.04", cap: 1, on: c => c.s.al.demol && c.s.techoExistente, ud: "m²", p: [9, 9, 9], mat: 0, q: c => c.g.S,
+    n: ["Desmontaje de falso techo existente", "Removal of existing suspended ceiling"] },
+  { id: "01.05", cap: 1, k: "demol", ud: "m³", p: [45, 45, 45], mat: 0, q: c => c.g.vol, pf: c => c.g.access,
+    n: ["Carga, bajada y transporte de escombros hasta el contenedor", "Loading, carrying down and transport of debris to the skip"] },
+
+  { id: "02.01", cap: 2, k: "fontaneria", ud: "ud", p: [62, 62, 66], mat: 0.35, q: c => c.g.nAgua,
+    n: ["Instalación de agua fría y caliente en tubería multicapa (por punto de consumo)", "Hot and cold water supply in multilayer pipe (per outlet)"] },
+  { id: "02.02", cap: 2, k: "fontaneria", ud: "ud", p: [58, 58, 58], mat: 0.3, q: c => c.g.nDes,
+    n: ["Red de desagües en PVC con botes sifónicos (por punto)", "PVC drainage with traps (per outlet)"] },
+  { id: "02.03", cap: 2, k: "fontaneria", ud: "ud", p: [140, 140, 150], mat: 0.4, q: c => 1,
+    n: ["Llaves de corte, colector y prueba de presión", "Isolation valves, manifold and pressure test"] },
+  { id: "02.04", cap: 2, on: c => c.s.flags.redistribucion, ud: "ud", p: [420, 420, 480], mat: 0.2, q: c => 1,
+    n: ["Modificación del trazado de desagües por cambio de distribución (sujeto a comprobar pendiente y bajante)", "Rerouting of drainage for the new layout (subject to checking slope and stack)"] },
+
+  { id: "03.01", cap: 3, k: "albanileria", ud: "m²", p: [28, 28, 32], mat: 0.4, q: c => c.g.S,
+    n: ["Regularización del soporte y formación de pendientes en el suelo", "Levelling of the substrate and falls in the floor"] },
+  { id: "03.02", cap: 3, k: "albanileria", ud: "m²", p: [24, 24, 28], mat: 0.5, q: c => r2(c.g.S + 3),
+    n: ["Impermeabilización del suelo y la zona de ducha con lámina líquida y banda en juntas", "Waterproofing of floor and shower area (liquid membrane with joint tape)"] },
+  { id: "03.03", cap: 3, k: "solado", ud: "m²", p: [55, 78, 115], mat: [0.4, 0.5, 0.6], q: c => c.g.S,
+    n: ["Suministro y colocación de pavimento antideslizante", "Supply and fitting of non-slip floor tiles"],
+    d: { es: ["Porcelánico económico, formato aprox. 30×60 cm", "Porcelánico de gama media, formato aprox. 60×60 cm", "Porcelánico rectificado de gran formato (aprox. 60×120 cm), junta mínima"],
+         en: ["Entry-level porcelain, approx. 30×60 cm", "Mid-range porcelain, approx. 60×60 cm", "Rectified large-format porcelain (approx. 60×120 cm), minimal grout joint"] } },
+  { id: "03.04", cap: 3, k: "alicatado", ud: "m²", p: [52, 74, 108], mat: [0.4, 0.5, 0.6], q: c => c.g.tile,
+    n: ["Suministro y colocación de alicatado en paredes", "Supply and fitting of wall tiling"],
+    d: { es: ["Azulejo o porcelánico económico (aprox. 30×60 cm)", "Porcelánico de gama media (30×60 o 30×90 cm), rectificado", "Porcelánico rectificado de gran formato, efecto piedra o mármol, junta mínima"],
+         en: ["Entry-level ceramic or porcelain (approx. 30×60 cm)", "Mid-range rectified porcelain (30×60 or 30×90 cm)", "Rectified large-format porcelain, stone or marble effect, minimal grout joint"] } },
+  { id: "03.05", cap: 3, k: "hornacina", ud: "ud", p: [140, 170, 220], mat: 0.4, q: c => 1,
+    n: ["Hornacina de obra en la ducha, revestida", "Built-in shower niche, tiled"] },
+
+  { id: "04.01", cap: 4, k: "falsoTecho", ud: "m²", p: [38, 38, 42], mat: 0.35, q: c => c.g.S,
+    n: ["Falso techo de placa de yeso laminado (hidrófuga en zona húmeda)", "Plasterboard suspended ceiling (moisture-resistant in wet areas)"] },
+  { id: "04.02", cap: 4, k: "pintura", ud: "m²", p: [11, 11, 13], mat: 0.3, q: c => c.g.pintar,
+    n: ["Pintura plástica antimoho en techo y paredes sin alicatar", "Anti-mould emulsion paint on ceiling and untiled walls"] },
+
+  { id: "05.01", cap: 5, k: "electricidad", ud: "ud", p: [360, 420, 520], mat: 0.35, q: c => 1,
+    n: ["Renovación de la instalación eléctrica del baño: circuitos, puntos de luz, mecanismos y toma de espejo", "Renewal of bathroom electrics: circuits, light points, switches and mirror outlet"],
+    d: { es: ["Mecanismos de gama estándar", "Mecanismos de gama media", "Mecanismos de diseño"],
+         en: ["Standard switches and sockets", "Mid-range switches and sockets", "Designer switches and sockets"] } },
+  { id: "05.02", cap: 5, on: c => c.s.al.falsoTecho && c.s.al.electricidad, ud: "ud", p: [28, 38, 52], mat: 0.7, q: c => c.g.nFocos,
+    n: ["Focos LED empotrados en el falso techo", "Recessed LED downlights in the ceiling"] },
+  { id: "05.03", cap: 5, k: "ventilacion", ud: "ud", p: [120, 190, 260], mat: 0.6, q: c => 1,
+    n: ["Extractor de ventilación del baño conectado a la salida existente", "Bathroom extractor fan connected to the existing outlet"],
+    d: { es: ["Extractor estándar", "Extractor silencioso con temporizador", "Extractor silencioso con sensor de humedad"],
+         en: ["Standard extractor", "Quiet extractor with timer", "Quiet extractor with humidity sensor"] } },
+  { id: "05.04", cap: 5, k: "toallero", ud: "ud", p: [190, 280, 420], mat: 0.75, q: c => 1,
+    n: ["Radiador toallero eléctrico", "Electric towel radiator"] },
+
+  { id: "06.01", cap: 6, k: "inodoro", ud: "ud", p: [230, 560, 880], mat: [0.65, 0.75, 0.8], q: c => 1,
+    n: ["Inodoro suministrado e instalado", "WC supplied and fitted"],
+    d: { es: ["Inodoro de porcelana blanco con cisterna baja y tapa", "Inodoro suspendido con cisterna empotrada, pulsador y tapa amortiguada", "Inodoro suspendido sin brida con cisterna empotrada y pulsador de diseño"],
+         en: ["White porcelain close-coupled WC with seat", "Wall-hung WC with concealed cistern, push plate and soft-close seat", "Wall-hung rimless WC with concealed cistern and designer push plate"] } },
+  { id: "06.02", cap: 6, k: "lavabo", ud: "ud", p: [330, 560, 1050], mat: 0.75, q: c => 1,
+    n: ["Mueble de lavabo con lavabo", "Vanity unit with basin"],
+    d: { es: ["Mueble con lavabo integrado (60-80 cm)", "Mueble suspendido de 80 cm con lavabo cerámico", "Mueble a medida o de diseño con lavabo sobre encimera"],
+         en: ["Vanity unit with integrated basin (60-80 cm)", "80 cm wall-hung vanity unit with ceramic basin", "Made-to-measure or designer vanity with countertop basin"] } },
+  { id: "06.03", cap: 6, k: "lavabo", ud: "ud", p: [55, 110, 190], mat: 0.8, q: c => 1,
+    n: ["Grifería de lavabo", "Basin tap"],
+    d: { es: ["Monomando estándar", "Monomando de gama media con cartucho cerámico", "Monomando de diseño de caña alta"],
+         en: ["Standard single-lever tap", "Mid-range single-lever tap with ceramic cartridge", "Designer tall single-lever tap"] } },
+  { id: "06.04", cap: 6, on: c => c.s.ducha === "ducha", ud: "ud", p: [380, 620, 1100], mat: [0.6, 0.6, 0.45], q: c => 1,
+    n: ["Plato de ducha con desagüe", "Shower tray with waste"],
+    d: { es: ["Plato de resina extraplano, medidas estándar", "Plato de resina a medida, acabado textura pizarra", "Plato a medida o de obra con sumidero lineal (según soporte)"],
+         en: ["Extra-flat resin tray, standard sizes", "Made-to-measure resin tray, slate-texture finish", "Made-to-measure or built-in tray with linear drain (depending on substrate)"] } },
+  { id: "06.05", cap: 6, on: c => c.s.ducha === "banera", ud: "ud", p: [360, 540, 980], mat: 0.65, q: c => 1,
+    n: ["Bañera con desagüe", "Bathtub with waste"],
+    d: { es: ["Bañera acrílica estándar (aprox. 170×70 cm)", "Bañera acrílica de gama media, con reposacabezas", "Bañera de diseño de gran confort (aprox. 180×80 cm)"],
+         en: ["Standard acrylic bathtub (approx. 170×70 cm)", "Mid-range acrylic bathtub with headrest", "Comfort designer bathtub (approx. 180×80 cm)"] } },
+  { id: "06.06", cap: 6, on: c => c.s.ducha !== "ninguna", ud: "ud", p: [95, 290, 560], mat: 0.8, q: c => 1,
+    n: ["Grifería de ducha o bañera", "Shower or bath mixer"],
+    d: { es: ["Monomando estándar", "Termostática con columna de ducha", "Termostática empotrada con rociador"],
+         en: ["Standard single-lever mixer", "Thermostatic mixer with shower column", "Concealed thermostatic mixer with rain head"] } },
+  { id: "06.07", cap: 6, on: c => c.s.al.mampara && c.s.ducha !== "ninguna", ud: "ud", p: [320, 460, 690], mat: 0.8, q: c => 1,
+    n: ["Mampara de ducha o bañera", "Shower or bath screen"],
+    d: { es: ["Mampara de aluminio y vidrio templado (fija o corredera)", "Mampara fija de vidrio templado de 8 mm, perfil mínimo", "Mampara de vidrio de 8 mm con tratamiento antical, sin perfiles"],
+         en: ["Aluminium and toughened glass screen (fixed or sliding)", "Fixed 8 mm toughened glass screen, minimal frame", "8 mm glass screen with anti-limescale treatment, frameless"] } },
+  { id: "06.08", cap: 6, k: "bide", ud: "ud", p: [190, 300, 480], mat: 0.75, q: c => 1,
+    n: ["Bidé con grifo", "Bidet with tap"] },
+  { id: "06.09", cap: 6, k: "espejo", ud: "ud", p: [45, 95, 220], mat: 0.85, q: c => 1,
+    n: ["Espejo", "Mirror"],
+    d: { es: ["Espejo liso estándar", "Espejo con canto pulido", "Espejo con iluminación LED"],
+         en: ["Standard plain mirror", "Mirror with polished edge", "Mirror with LED lighting"] } },
+  { id: "06.10", cap: 6, k: "accesorios", ud: "ud", p: [45, 90, 170], mat: 0.85, q: c => 1,
+    n: ["Accesorios de baño (toallero, portarrollos y percha)", "Bathroom accessories (towel rail, toilet-roll holder and hook)"] },
+
+  { id: "07.01", cap: 7, k: "puerta", ud: "ud", p: [190, 280, 420], mat: 0.65, q: c => 1,
+    n: ["Puerta de paso del baño con herrajes y condena", "Bathroom door with ironmongery and privacy lock"],
+    d: { es: ["Puerta lisa lacada", "Puerta lacada con tapajuntas a juego", "Puerta lacada de diseño con herrajes de gama alta"],
+         en: ["Plain lacquered door", "Lacquered door with matching architraves", "Designer lacquered door with premium ironmongery"] } },
+
+  { id: "08.01", cap: 8, k: "proteccion", ud: "ud", p: [70, 70, 70], mat: 0.1, q: c => 1,
+    n: ["Protección de zonas comunes (ascensor, portal y escalera)", "Protection of common areas (lift, entrance hall and stairs)"] },
+  { id: "08.02", cap: 8, k: "limpieza", ud: "ud", p: [85, 85, 95], mat: 0.05, q: c => 1,
+    n: ["Limpieza final de obra", "Final clean-up"] },
+
+  { id: "09.01", cap: 9, on: c => c.res.mode === "cuba" && c.res.size === 4, ud: "ud", p: [230, 230, 230], mat: 0, q: c => c.res.n,
+    n: ["Cuba de 4 m³ con transporte y gestión de residuos por gestor autorizado", "4 m³ skip with transport and waste handling by an authorised processor"] },
+  { id: "09.02", cap: 9, on: c => c.res.mode === "cuba" && c.res.size === 6, ud: "ud", p: [290, 290, 290], mat: 0, q: c => c.res.n,
+    n: ["Cuba de 6 m³ con transporte y gestión de residuos por gestor autorizado", "6 m³ skip with transport and waste handling by an authorised processor"] },
+  { id: "09.03", cap: 9, on: c => c.res.mode === "sacos", ud: "ud", p: [85, 85, 85], mat: 0, q: c => c.res.n,
+    n: ["Sacos big bag de 1 m³ con retirada y gestión de residuos por gestor autorizado", "1 m³ big bags with collection and waste handling by an authorised processor"] }
+];
+
+/* ---------- utilidades ---------- */
+const r2 = x => Math.round((x + Number.EPSILON) * 100) / 100;
+const num = v => { const n = parseFloat(String(v == null ? "" : v).replace(",", ".")); return isFinite(n) ? n : 0; };
+
+function fmt(n, d, lang) {
+  d = d == null ? 2 : d;
+  const neg = n < 0, s = Math.abs(n).toFixed(d);
+  let [i, f] = s.split(".");
+  const en = lang === "en";
+  i = i.replace(/\B(?=(\d{3})+(?!\d))/g, en ? "," : ".");
+  return (neg ? "-" : "") + i + (f ? (en ? "." : ",") + f : "");
+}
+function fmtN(n, lang) {
+  let s = fmt(n, 2, lang);
+  const sep = lang === "en" ? "." : ",";
+  if (s.indexOf(sep) >= 0) s = s.replace(/0+$/, "").replace(sep === "." ? /\.$/ : /,$/, "");
+  return s;
+}
+function money(n, lang) { return lang === "en" ? "€" + fmt(n, 2, "en") : fmt(n, 2, "es") + " €"; }
+
+function validaDocumento(v) {
+  v = String(v || "").toUpperCase().replace(/[\s.\-]/g, "");
+  if (!v) return null;
+  const letras = "TRWAGMYFPDXBNJZSQVHLCKE";
+  let m;
+  if ((m = v.match(/^(\d{8})([A-Z])$/))) return letras[parseInt(m[1], 10) % 23] === m[2] ? "DNI" : null;
+  if ((m = v.match(/^([XYZ])(\d{7})([A-Z])$/))) {
+    const n = parseInt({ X: "0", Y: "1", Z: "2" }[m[1]] + m[2], 10);
+    return letras[n % 23] === m[3] ? "NIE" : null;
+  }
+  if (/^[A-HJNPQRSUVW]\d{7}[0-9A-J]$/.test(v)) return "CIF";
+  return null;
+}
+
+/* ---------- geometría y residuos ---------- */
+function geom(s) {
+  const L = num(s.largo), A = num(s.ancho), H = num(s.altura);
+  const S = r2(L * A), P = r2(2 * (L + A));
+  const hueco = 1.6 + (s.ventana ? 0.8 : 0);
+  const paredes = Math.max(0, r2(P * H - hueco));
+  const parcial = Math.max(0, r2(Math.max(0, P - 0.8) * 1.2 + 3.5 - (s.ventana ? 0.4 : 0)));
+  const tile = s.alicatado === "parcial" ? Math.min(parcial, paredes) : paredes;
+  const sin = Math.max(0, r2(paredes - tile));
+  const pintar = r2(S + sin);
+  const al = s.al;
+  let nAgua = 0, nDes = 0;
+  if (al.inodoro) { nAgua += 1; nDes += 1; }
+  if (al.lavabo) { nAgua += 2; nDes += 1; }
+  if (s.ducha !== "ninguna") { nAgua += 2; nDes += 1; }
+  if (al.bide) { nAgua += 2; nDes += 1; }
+  nAgua = Math.max(nAgua, 1); nDes = Math.max(nDes, 1);
+  const nFocos = Math.max(3, Math.ceil(S * 0.9));
+  let access = 1;
+  if (s.tipo === "piso") access = s.ascensor ? 1.15 : Math.min(2, 1.15 + 0.1 * Math.max(1, num(s.planta)));
+  const vol = al.demol ? Math.round((S * 0.08 + paredes * 0.05 + 0.35 + (s.techoExistente ? S * 0.02 : 0)) * 1.5 * 10) / 10 : 0;
+  return { L, A, H, S, P, paredes, tile, sin, pintar, nAgua, nDes, nFocos, access: r2(access), vol };
+}
+
+function resInfo(s, g) {
+  if (g.vol <= 0) return { rec: "ninguno", mode: "ninguno", size: 4, nCuba: 0, nSacos: 0 };
+  const rec = s.tipo === "casa" ? "cuba" : (g.vol <= 3.5 ? "sacos" : "cuba");
+  const mode = s.residuos === "auto" ? rec : s.residuos;
+  let size = 4, nCuba = 1;
+  if (g.vol > 4) { size = 6; nCuba = Math.ceil(g.vol / 6); }
+  const nSacos = Math.max(2, Math.ceil(g.vol));
+  return { rec, mode, size, nCuba, nSacos };
+}
+
+/* ---------- cálculo por gama ---------- */
+function calcTier(s, set, t) {
+  const g = geom(s), r = resInfo(s, g);
+  const c = { s, g, res: { mode: r.mode, size: r.size, n: r.mode === "cuba" ? r.nCuba : r.nSacos } };
+  const f = 1 + num(set.factor) / 100;
+  const lines = [];
+  for (const it of ITEMS) {
+    const on = it.on ? it.on(c) : !!s.al[it.k];
+    if (!on) continue;
+    const q = it.q(c);
+    if (!(q > 0)) continue;
+    const ov = set.precios && set.precios[it.id];
+    const base = ov && isFinite(ov[t]) && ov[t] !== null ? ov[t] : it.p[t];
+    const price = r2(base * (it.pf ? it.pf(c) : 1) * f);
+    const mat = Array.isArray(it.mat) ? it.mat[t] : it.mat;
+    lines.push({ id: it.id, cap: it.cap, n: it.n, d: it.d ? { es: it.d.es[t], en: it.d.en[t] } : null, ud: it.ud, q, price, imp: r2(q * price), mat });
+  }
+  const li = num(s.libreImp);
+  if (li && String(s.libreDesc || "").trim()) {
+    const dsc = String(s.libreDesc).trim();
+    lines.push({ id: "10.01", cap: 10, n: [dsc, dsc], d: null, ud: "ud", q: 1, price: li, imp: r2(li), mat: 0.5 });
+  }
+  const caps = [];
+  for (const l of lines) {
+    let cp = caps.find(x => x.cap === l.cap);
+    if (!cp) { cp = { cap: l.cap, lines: [], sub: 0 }; caps.push(cp); }
+    cp.lines.push(l); cp.sub = r2(cp.sub + l.imp);
+  }
+  const sum = r2(lines.reduce((a, l) => a + l.imp, 0));
+  const dto = Math.max(0, Math.min(50, num(s.dto)));
+  const desc = r2(sum * dto / 100);
+  const base = r2(sum - desc);
+  const ivaPct = num(s.iva) === 21 ? 21 : 10;
+  const iva = r2(base * ivaPct / 100);
+  const total = r2(base + iva);
+  const matShare = sum > 0 ? lines.reduce((a, l) => a + l.imp * l.mat, 0) / sum : 0;
+  const dias = 9 + Math.round(g.S * 0.8) + (s.al.falsoTecho ? 1 : 0) + (t === 2 ? 2 : 0);
+  return {
+    t, g, res: c.res, resInfo: r, lines, caps, sum, dto, desc, base, ivaPct, iva, total, matShare,
+    low: r2(total * (1 - num(set.rMenos) / 100)), high: r2(total * (1 + num(set.rMas) / 100)),
+    dias: [Math.max(5, dias - 2), dias + 2]
+  };
+}
+
+/* ---------- avisos técnicos (protocolo interno de detección de riesgo) ---------- */
+function avisos(s) {
+  const a = [];
+  if (s.flags.edificioAntiguo) a.push({ lvl: 2,
+    es: "Edificio o instalaciones antiguas: recomendamos revisión técnica previa de tuberías, cableado y soportes. Pueden aparecer imprevistos que se valorarán aparte.",
+    en: "Older building or installations: we recommend a prior technical check of pipework, wiring and substrates. Unforeseen issues may arise and would be priced separately." });
+  if (s.flags.sinVentilacion) a.push({ lvl: 3,
+    es: "El baño no tiene salida de ventilación a patio o fachada: la solución puede requerir intervención técnica y, en su caso, autorización de la comunidad.",
+    en: "The bathroom has no ventilation outlet to a patio or façade: the solution may need technical input and, where applicable, approval from the owners' community." });
+  if (s.flags.redistribucion) a.push({ lvl: 3,
+    es: "El cambio de distribución (mover inodoro, ducha o desagües) depende de la pendiente y de la bajante existentes. Recomendamos consulta técnica antes de confirmarlo.",
+    en: "Changing the layout (moving the WC, shower or drains) depends on the existing slope and drainage stack. We recommend a technical consultation before confirming it." });
+  if (s.uso === "turistico") a.push({ lvl: 3,
+    es: "Vivienda con uso turístico u otra actividad: recomendamos consulta técnica sobre las condiciones que pueden afectar a la obra.",
+    en: "Holiday-let or business use: we recommend a technical consultation on conditions that may affect the works." });
+  return a;
+}
+
+/* ---------- textos del PDF ---------- */
+const LANG = {
+  es: {
+    title: "PRESUPUESTO ORIENTATIVO", sub: t => `Reforma de baño · Gama ${t}`,
+    num: "Nº", fecha: "Fecha", valid: "Validez", validTxt: d => `${d} días`,
+    cliente: "CLIENTE / PROMOTOR", obra: "OBRA", nombre: "Nombre", docu: "DNI / NIE", tel: "Teléfono", mail: "Email",
+    cif: "CIF", cols: ["Cód.", "Descripción", "Ud.", "Cant.", "Precio", "Importe"],
+    suma: "Suma de partidas", dto: p => `Descuento comercial (${p} %)`, baseImp: "Base imponible", iva: p => `IVA (${p} %)`, total: "TOTAL",
+    horq: (a, b) => `Horquilla orientativa tras la visita técnica: entre ${a} y ${b} (IVA incluido).`,
+    comp: "COMPARATIVA ORIENTATIVA DE GAMAS", compCols: ["Gama", "Sin IVA", "IVA incluido"], sel: "(seleccionada)",
+    pago: "FORMA DE PAGO", pagoCols: ["Hito", "%", "Importe (IVA incl.)"],
+    hitos: ["A la aceptación (reserva de fecha y acopio de materiales)", "A mitad de obra (al terminar fontanería y alicatado)", "A la finalización de la obra"],
+    transf: "Pago por transferencia bancaria.", iban: x => `IBAN: ${x}`,
+    plazo: (a, b) => `Plazo de ejecución orientativo: de ${a} a ${b} días laborables desde el inicio efectivo de los trabajos, sujeto a plazos de suministro, accesos y autorizaciones.`,
+    validez: d => `Validez de esta estimación: ${d} días desde la fecha de emisión.`,
+    obs: "OBSERVACIONES", avis: "ASPECTOS A COMPROBAR EN LA VISITA",
+    nat: "NATURALEZA DE ESTE DOCUMENTO", inc: "INCLUYE", exc: "NO INCLUYE", lic: "LICENCIAS, PERMISOS Y RESPONSABILIDADES",
+    resid: "ESCOMBROS Y CUBA", ivaH: "IVA",
+    acept: "ACEPTACIÓN", porEmp: "Por DELDIM REFORMAS S.L.", conforme: "Conforme del cliente (nombre, DNI/NIE, fecha y firma)",
+    pag: (i, n) => `Página ${i} de ${n}`,
+    resumen: (D, g, s) => {
+      const alic = !s.al.alicatado ? "sin alicatado nuevo" : s.alicatado === "parcial" ? "alicatado parcial" : "alicatado completo";
+      const du = s.ducha === "ducha" ? "con plato de ducha" : s.ducha === "banera" ? "con bañera" : "sin ducha ni bañera";
+      return `Baño de ${fmtN(g.S)} m² (${fmtN(g.L)} × ${fmtN(g.A)} m, altura ${fmtN(g.H)} m), ${alic}, ${du}. Gama ${D.tier.es}: ${D.tier.bes}`;
+    },
+    inmueble: s => (s.tipo === "casa" ? "Casa o chalet" : `Piso, planta ${num(s.planta) === 0 ? "baja" : num(s.planta)}, ${s.ascensor ? "con ascensor" : "sin ascensor"}`),
+    nature: "Este documento es una estimación orientativa preparada con los datos que nos ha facilitado el cliente, sin visita previa a la vivienda. El presupuesto definitivo se confirmará tras una visita técnica, comprobando el estado real de las instalaciones, los soportes y los accesos. Si el estado real difiere de lo indicado, los importes pueden variar.",
+    incluye: D => {
+      const a = ["Mano de obra, materiales y medios auxiliares necesarios para ejecutar las partidas descritas, con calidades equivalentes a la gama seleccionada."];
+      if (D.s.al.proteccion) a.push("Protección de zonas de paso y de zonas comunes (ascensor, portal y escalera) durante la obra.");
+      if (D.s.al.demol) a.push("Carga, bajada y transporte de escombros.");
+      if (D.res.mode !== "ninguno") a.push("Gestión de los residuos de construcción y demolición con gestor autorizado, con entrega del justificante o certificado de gestión (RD 105/2008).");
+      if (D.s.al.limpieza) a.push("Limpieza final de obra.");
+      a.push("Garantía de la obra ejecutada conforme a la normativa vigente.");
+      return a;
+    },
+    excluye: D => {
+      const a = [
+        "Proyecto, memoria técnica, dirección facultativa, coordinación de seguridad y salud ni informes de técnicos (arquitecto, arquitecto técnico o ingeniero), salvo contratación expresa y por escrito.",
+        "Licencia de obra o declaración responsable, tasas e impuestos municipales y cualquier otro permiso o autorización de las administraciones.",
+        "Autorizaciones y avisos a la comunidad de propietarios, cuando proceda."
+      ];
+      if (D.res.mode === "cuba") a.push("Autorización municipal para ocupar la vía pública con la cuba y sus tasas.");
+      a.push("Reparación de defectos ocultos o previos (humedades, bajantes y tuberías generales, forjados, instalaciones comunitarias) ni retirada de materiales peligrosos como el amianto. Si aparecen, se valorarán aparte.");
+      a.push("Adecuación de instalaciones generales a la normativa actual (por ejemplo, el cuadro eléctrico general) cuando no figure en las partidas.");
+      a.push("Mobiliario, electrodomésticos, decoración, y cualquier trabajo o cambio de gama no descrito, que se presupuestará aparte.");
+      return a;
+    },
+    licencias: () => [
+      "El cliente/promotor reconoce ser responsable de la obtención de licencias, autorizaciones y contratación de técnicos cuando legalmente proceda. DELDIM REFORMAS S.L. actúa como empresa constructora ejecutora, salvo contratación expresa adicional por escrito.",
+      "Si esta obra necesita licencia, declaración responsable o aviso, puede depender del criterio municipal. Recomendamos consulta técnica y conviene formalizarlo mediante técnico competente antes de empezar.",
+      "Si la vivienda pertenece a una comunidad de propietarios, el cliente es responsable de comunicar las obras y obtener las autorizaciones que procedan (horarios, ascensor, elementos comunes).",
+      "DELDIM puede colaborar en la gestión administrativa de estos trámites si el cliente lo solicita, sin garantizar por sí sola su viabilidad."
+    ],
+    residuos: D => {
+      if (D.res.mode === "cuba") return [
+        `Se incluye ${D.res.n > 1 ? D.res.n + " cubas" : "una cuba"} de ${D.res.size} m³ con transporte y gestión del residuo por gestor autorizado.`,
+        "Si la cuba se coloca en la vía pública, la autorización municipal de ocupación y sus tasas corresponden al cliente/promotor, titular de la obra. DELDIM puede tramitarla en su nombre si el cliente se lo pide por escrito, y la tasa se repercutirá a coste.",
+        "Si se coloca en un espacio privado (garaje, patio, parcela), el Ayuntamiento suele no intervenir, pero puede hacer falta la conformidad de la comunidad o del propietario del espacio.",
+        "Los plazos de la autorización pueden condicionar la fecha de inicio de la obra."
+      ];
+      if (D.res.mode === "sacos") return [
+        `Se incluyen ${D.res.n} sacos big bag de 1 m³, que se llenan dentro de la vivienda y se retiran con camión y gestor autorizado. Es la opción habitual en pisos sin espacio para una cuba.`,
+        "Evita en general ocupar la vía pública, salvo el estacionamiento puntual del camión de retirada, sujeto a las normas municipales de cada calle."
+      ];
+      return ["La retirada y gestión de los residuos queda a cargo del cliente. Como productor de los residuos, debe asegurar su entrega a un gestor autorizado (RD 105/2008)."];
+    },
+    ivaTxt: D => D.ivaPct === 10
+      ? "IVA del 10 %, aplicable a obras de renovación y reparación en vivienda destinada a uso particular y terminada hace más de dos años. El cliente declara que cumple estos requisitos. Además, el tipo reducido exige que el coste de los materiales que aporte el contratista no supere el 40 % de la base imponible; si no se cumple, el tipo se revisará con el presupuesto definitivo."
+      : "IVA general del 21 %.",
+    datos: co => `Datos personales tratados por ${co.razon} para preparar y gestionar este presupuesto, conforme al RGPD y a la LOPDGDD.${co.email ? " Puede ejercer sus derechos escribiendo a " + co.email + "." : ""}`
+  },
+  en: {
+    title: "INDICATIVE ESTIMATE", sub: t => `Bathroom renovation · ${t} range`,
+    num: "No.", fecha: "Date", valid: "Valid for", validTxt: d => `${d} days`,
+    cliente: "CLIENT / OWNER", obra: "WORKS ADDRESS", nombre: "Name", docu: "ID / NIE", tel: "Phone", mail: "Email",
+    cif: "Tax ID (CIF)", cols: ["Code", "Description", "Unit", "Qty", "Price", "Amount"],
+    suma: "Subtotal", dto: p => `Commercial discount (${p}%)`, baseImp: "Taxable amount", iva: p => `VAT (IVA) ${p}%`, total: "TOTAL",
+    horq: (a, b) => `Indicative range after the technical visit: between ${a} and ${b} (VAT included).`,
+    comp: "INDICATIVE COMPARISON OF RANGES", compCols: ["Range", "Excl. VAT", "Incl. VAT"], sel: "(selected)",
+    pago: "PAYMENT TERMS", pagoCols: ["Milestone", "%", "Amount (VAT incl.)"],
+    hitos: ["On acceptance (date reservation and material ordering)", "Mid-works (once plumbing and tiling are finished)", "On completion of the works"],
+    transf: "Payment by bank transfer.", iban: x => `IBAN: ${x}`,
+    plazo: (a, b) => `Estimated duration: ${a} to ${b} working days from the effective start of works, subject to supply times, access and permits.`,
+    validez: d => `This estimate is valid for ${d} days from the date of issue.`,
+    obs: "NOTES", avis: "POINTS TO CHECK DURING THE VISIT",
+    nat: "NATURE OF THIS DOCUMENT", inc: "INCLUDED", exc: "NOT INCLUDED", lic: "LICENCES, PERMITS AND RESPONSIBILITIES",
+    resid: "DEBRIS AND SKIP", ivaH: "VAT",
+    acept: "ACCEPTANCE", porEmp: "For DELDIM REFORMAS S.L.", conforme: "Client's approval (name, ID/NIE, date and signature)",
+    pag: (i, n) => `Page ${i} of ${n}`,
+    resumen: (D, g, s) => {
+      const alic = !s.al.alicatado ? "no new wall tiling" : s.alicatado === "parcial" ? "partial wall tiling" : "full-height wall tiling";
+      const du = s.ducha === "ducha" ? "with shower tray" : s.ducha === "banera" ? "with bathtub" : "without shower or bath";
+      return `Bathroom of ${fmtN(g.S, "en")} m² (${fmtN(g.L, "en")} × ${fmtN(g.A, "en")} m, ceiling height ${fmtN(g.H, "en")} m), ${alic}, ${du}. ${D.tier.en} range: ${D.tier.ben}`;
+    },
+    inmueble: s => (s.tipo === "casa" ? "House or villa" : `Apartment, ${num(s.planta) === 0 ? "ground floor" : "floor " + num(s.planta)}, ${s.ascensor ? "with lift" : "no lift"}`),
+    nature: "This document is an indicative estimate prepared from the information supplied by the client, without a prior visit to the property. The final quotation will be confirmed after a technical visit, checking the real condition of the existing installations, substrates and access. If the real condition differs from what has been described, the amounts may change.",
+    incluye: D => {
+      const a = ["Labour, materials and ancillary equipment needed to carry out the items described, with qualities equivalent to the selected range."];
+      if (D.s.al.proteccion) a.push("Protection of access routes and common areas (lift, entrance hall and stairs) during the works.");
+      if (D.s.al.demol) a.push("Loading, carrying down and transport of debris.");
+      if (D.res.mode !== "ninguno") a.push("Handling of construction and demolition waste by an authorised processor, with a waste-handling certificate or receipt (RD 105/2008).");
+      if (D.s.al.limpieza) a.push("Final clean-up.");
+      a.push("Warranty on the works carried out, in line with current regulations.");
+      return a;
+    },
+    excluye: D => {
+      const a = [
+        "Design project, technical report, site supervision, health and safety coordination or reports from technicians (architect, quantity surveyor or engineer), unless expressly commissioned in writing.",
+        "Building licence or responsible declaration, municipal fees and taxes, and any other permit or authorisation from the authorities.",
+        "Authorisations and notices to the owners' community, where applicable."
+      ];
+      if (D.res.mode === "cuba") a.push("Municipal authorisation to place the skip on the public highway, and the related fees.");
+      a.push("Repair of hidden or pre-existing defects (damp, drainage stacks and main pipework, floor slabs, communal installations) or removal of hazardous materials such as asbestos. If they appear, they will be priced separately.");
+      a.push("Upgrading general installations to current regulations (for example, the main electrical panel) where not listed in the items.");
+      a.push("Furniture, appliances, decoration, and any work or range change not described, which will be quoted separately.");
+      return a;
+    },
+    licencias: () => [
+      "The client/owner acknowledges being responsible for obtaining licences and authorisations, and for appointing technicians where legally required. DELDIM REFORMAS S.L. acts as the executing building contractor, unless expressly commissioned otherwise in writing.",
+      "Whether these works need a licence, responsible declaration or notice may depend on the criteria of the local council. We recommend a technical consultation, and it is advisable to formalise this through a qualified technician before starting.",
+      "If the property belongs to an owners' community, the client is responsible for notifying the works and obtaining any required approvals (working hours, lift, common elements).",
+      "DELDIM can help with the administrative side of these procedures if the client requests it, without guaranteeing their outcome on its own."
+    ],
+    residuos: D => {
+      if (D.res.mode === "cuba") return [
+        `${D.res.n > 1 ? D.res.n + " skips" : "One skip"} of ${D.res.size} m³ included, with transport and waste handling by an authorised processor.`,
+        "If the skip is placed on the public highway, the municipal authorisation and its fees are the responsibility of the client/owner of the works. DELDIM can apply for it on the client's behalf if asked in writing, and the fee will be passed on at cost.",
+        "If it is placed on private land (garage, patio, plot), the council is usually not involved, but the consent of the community or the owner of that space may be needed.",
+        "Authorisation lead times may affect the start date of the works."
+      ];
+      if (D.res.mode === "sacos") return [
+        `${D.res.n} big bags of 1 m³ included. They are filled inside the property and collected by lorry and an authorised processor. This is the usual option for apartments without room for a skip.`,
+        "It generally avoids occupying the public highway, apart from the collection lorry stopping briefly, subject to each street's municipal rules."
+      ];
+      return ["Removal and handling of waste is the client's responsibility. As the producer of the waste, the client must ensure it is delivered to an authorised processor (RD 105/2008)."];
+    },
+    ivaTxt: D => D.ivaPct === 10
+      ? "VAT (IVA) at 10%, applicable to renovation and repair works in a dwelling used as a private home that was completed more than two years ago. The client declares that these requirements are met. The reduced rate also requires that the cost of materials supplied by the contractor does not exceed 40% of the taxable amount; if it does, the rate will be reviewed in the final quotation."
+      : "General VAT (IVA) rate of 21%.",
+    datos: co => `Personal data processed by ${co.razon} to prepare and manage this estimate, in accordance with the GDPR and Spanish data-protection law.${co.email ? " You can exercise your rights by writing to " + co.email + "." : ""}`
+  }
+};
+
+/* ---------- PDF ---------- */
+function buildPdf(jsPDF, D) {
+  const lang = D.lang === "en" ? "en" : "es", T = LANG[lang], co = D.company, s = D.s, R = D.r;
+  const doc = new jsPDF({ unit: "mm", format: "a4", compress: true });
+  const W = 210, H = 297, M = 15, CW = W - 2 * M;
+  const INK = [28, 27, 26], AZUL = [44, 74, 78], TERRA = [181, 86, 58], GRIS = [107, 101, 91], LINE = [221, 213, 198], FONDO = [244, 240, 232], BANDA = [233, 237, 236];
+  let y = 0, inTable = false;
+  const col = c => doc.setTextColor(c[0], c[1], c[2]);
+  const font = (st, sz, c) => { doc.setFont("helvetica", st); doc.setFontSize(sz); col(c || INK); };
+  /* Los superíndices ² y ³ se dibujan a mano: algunos visores no pintan ese glifo con la fuente Helvetica estándar. */
+  const txt = (t, x, yy, o) => {
+    t = String(t);
+    if (!/[²³]/.test(t)) return doc.text(t, x, yy, o);
+    const segs = []; let buf = "";
+    for (const ch of t) {
+      if (ch === "²" || ch === "³") { if (buf) segs.push([buf, 0]); segs.push([ch === "²" ? "2" : "3", 1]); buf = ""; } else buf += ch;
+    }
+    if (buf) segs.push([buf, 0]);
+    const fs = doc.getFontSize();
+    const w = segs.map(sg => { if (sg[1]) { doc.setFontSize(fs * 0.62); const ww = doc.getTextWidth(sg[0]); doc.setFontSize(fs); return ww; } return doc.getTextWidth(sg[0]); });
+    const total = w.reduce((a, b) => a + b, 0);
+    let cx = x; if (o && o.align === "right") cx = x - total; else if (o && o.align === "center") cx = x - total / 2;
+    segs.forEach((sg, i) => {
+      if (sg[1]) { doc.setFontSize(fs * 0.62); doc.text(sg[0], cx, yy - fs * 0.125); doc.setFontSize(fs); } else doc.text(sg[0], cx, yy);
+      cx += w[i];
+    });
+  };
+  const mn = v => money(v, lang);
+  const X = { code: M + 1.5, desc: M + 15, ud: M + 101, qty: M + 124, price: M + 150, imp: M + CW - 1.5 }, WD = 83;
+
+  function tableHeader() {
+    doc.setFillColor(AZUL[0], AZUL[1], AZUL[2]); doc.rect(M, y, CW, 6.5, "F");
+    font("bold", 8, [255, 255, 255]);
+    txt(T.cols[0], X.code, y + 4.4); txt(T.cols[1], X.desc, y + 4.4); txt(T.cols[2], X.ud, y + 4.4);
+    txt(T.cols[3], X.qty, y + 4.4, { align: "right" }); txt(T.cols[4], X.price, y + 4.4, { align: "right" }); txt(T.cols[5], X.imp, y + 4.4, { align: "right" });
+    y += 6.5;
+  }
+  function newPage() { doc.addPage(); y = M + 3; if (inTable) tableHeader(); }
+  function ensure(h) { if (y + h > H - 20) newPage(); }
+  function para(t, o) {
+    o = o || {};
+    const size = o.size || 8.5, lh = o.lh || size * 0.5, w = (o.w || CW) - (o.indent || 0), x = o.x == null ? M : o.x;
+    font(o.bold ? "bold" : "normal", size, o.color || INK);
+    const ls = doc.splitTextToSize(String(t), w);
+    ls.forEach((ln, i) => { ensure(lh); if (o.bullet && i === 0) txt(o.bullet, x, y); txt(ln, x + (o.indent || 0), y); y += lh; });
+    y += o.gap || 0;
+  }
+  function heading(t) { ensure(14); y += 3; font("bold", 8.5, AZUL); txt(t, M, y); y += 1.6; doc.setDrawColor(LINE[0], LINE[1], LINE[2]); doc.setLineWidth(0.25); doc.line(M, y, M + CW, y); y += 4.2; }
+  function bullets(arr) { arr.forEach(t => para(t, { size: 8.3, lh: 4.1, bullet: "•", indent: 4, gap: 0.9 })); }
+
+  /* cabecera */
+  doc.addImage(D.logo, "JPEG", M, 11, 30, 24.9);
+  let cy = 14; font("bold", 11, INK); txt(co.razon, W - M, cy, { align: "right" }); cy += 4.8;
+  font("normal", 8.3, GRIS);
+  if (co.cif) { txt(`${T.cif}: ${co.cif}`, W - M, cy, { align: "right" }); cy += 4; }
+  if (co.domicilio) { doc.splitTextToSize(co.domicilio, 85).forEach(l => { txt(l, W - M, cy, { align: "right" }); cy += 4; }); }
+  const ct = [co.telefono, co.email, co.web].filter(Boolean).join("  ·  "); if (ct) { txt(ct, W - M, cy, { align: "right" }); cy += 4; }
+  y = Math.max(cy, 38) + 2; doc.setDrawColor(LINE[0], LINE[1], LINE[2]); doc.setLineWidth(0.3); doc.line(M, y, M + CW, y); y += 8;
+
+  /* título y datos del documento */
+  font("bold", 16, AZUL); txt(T.title, M, y); font("normal", 10, INK); txt(T.sub(D.tier[lang]), M, y + 6);
+  const meta = [[T.num, D.numero], [T.fecha, D.fecha], [T.valid, T.validTxt(D.validez)]];
+  meta.forEach((m, i) => { font("normal", 8.3, GRIS); txt(m[0], W - M - 38, y - 3 + i * 4.6); font("bold", 8.5, INK); txt(m[1], W - M, y - 3 + i * 4.6, { align: "right" }); });
+  y += 14;
+
+  /* cajas cliente / obra */
+  const bw = (CW - 6) / 2;
+  const cli = [[s.nombre.trim(), true]];
+  cli.push([`${T.docu}: ${s.doc.trim().toUpperCase()}`]);
+  if (s.tel.trim()) cli.push([`${T.tel}: ${s.tel.trim()}`]);
+  if (s.email.trim()) cli.push([`${T.mail}: ${s.email.trim()}`]);
+  const dir = []; doc.setFont("helvetica", "normal"); doc.setFontSize(8.8);
+  doc.splitTextToSize(s.calle.trim(), bw - 8).forEach(l => dir.push([l]));
+  const loc = [s.cp.trim(), s.muni.trim()].filter(Boolean).join(" "); if (loc) dir.push([loc]);
+  dir.push([T.inmueble(s)]);
+  const nl = Math.max(cli.length, dir.length), bh = 9 + nl * 4.4;
+  [[M, T.cliente, cli], [M + bw + 6, T.obra, dir]].forEach(b => {
+    doc.setFillColor(FONDO[0], FONDO[1], FONDO[2]); doc.roundedRect(b[0], y, bw, bh, 1.5, 1.5, "F");
+    font("bold", 7.3, AZUL); txt(b[1], b[0] + 4, y + 5);
+    b[2].forEach((r, i) => { font(r[1] ? "bold" : "normal", r[1] ? 9.5 : 8.8, INK); txt(r[0], b[0] + 4, y + 10 + i * 4.4); });
+  });
+  y += bh + 5;
+  para(T.resumen(D, R.g, s), { size: 8.3, lh: 4.1, color: GRIS, gap: 3 });
+
+  /* partidas */
+  ensure(30); inTable = true; tableHeader();
+  R.caps.forEach(cp => {
+    ensure(20);
+    doc.setFillColor(BANDA[0], BANDA[1], BANDA[2]); doc.rect(M, y, CW, 6, "F");
+    font("bold", 8.5, AZUL); txt(String(cp.cap).padStart(2, "0"), X.code, y + 4.1); txt(CAPS[cp.cap][lang], X.desc, y + 4.1); txt(mn(cp.sub), X.imp, y + 4.1, { align: "right" });
+    y += 6;
+    cp.lines.forEach(l => {
+      doc.setFont("helvetica", "normal"); doc.setFontSize(8.5);
+      const nl2 = doc.splitTextToSize(l.n[lang === "en" ? 1 : 0], WD);
+      doc.setFontSize(7.4); const dl = l.d ? doc.splitTextToSize(l.d[lang], WD) : [];
+      const h = nl2.length * 4 + dl.length * 3.5 + 2.6;
+      ensure(h);
+      font("normal", 7.4, GRIS); txt(l.id, X.code, y + 3.6);
+      font("normal", 8.5, INK); nl2.forEach((t, i) => txt(t, X.desc, y + 3.6 + i * 4));
+      font("normal", 7.4, GRIS); dl.forEach((t, i) => txt(t, X.desc, y + 3.6 + nl2.length * 4 + i * 3.5));
+      font("normal", 8.5, INK);
+      txt(l.ud === "ud" && lang === "en" ? "unit" : l.ud, X.ud, y + 3.6);
+      txt(fmtN(l.q, lang), X.qty, y + 3.6, { align: "right" }); txt(fmt(l.price, 2, lang), X.price, y + 3.6, { align: "right" });
+      font("bold", 8.5, INK); txt(fmt(l.imp, 2, lang), X.imp, y + 3.6, { align: "right" });
+      y += h; doc.setDrawColor(LINE[0], LINE[1], LINE[2]); doc.setLineWidth(0.15); doc.line(M, y, M + CW, y);
+    });
+  });
+  inTable = false; y += 4;
+
+  /* totales */
+  ensure(46);
+  const tx0 = M + 98, tx1 = M + CW;
+  const row = (a, b, bold) => { font(bold ? "bold" : "normal", 9, INK); txt(a, tx0, y + 3.6); txt(b, tx1 - 1.5, y + 3.6, { align: "right" }); y += 5.4; };
+  row(T.suma, mn(R.sum));
+  if (R.desc > 0) row(T.dto(fmtN(R.dto, lang)), "-" + mn(R.desc));
+  row(T.baseImp, mn(R.base)); row(T.iva(R.ivaPct), mn(R.iva));
+  y += 1; doc.setFillColor(AZUL[0], AZUL[1], AZUL[2]); doc.roundedRect(tx0 - 3, y, tx1 - tx0 + 3, 9.5, 1.5, 1.5, "F");
+  font("bold", 11, [255, 255, 255]); txt(T.total, tx0, y + 6.3); txt(mn(R.total), tx1 - 3, y + 6.3, { align: "right" }); y += 9.5 + 4;
+  para(T.horq(mn(R.low), mn(R.high)), { size: 8, color: GRIS, gap: 2 });
+
+  /* comparativa de gamas */
+  if (D.comparar && D.tiers) {
+    ensure(34); heading(T.comp);
+    const cx = [M + 2, M + 95, M + CW - 2];
+    font("bold", 7.8, GRIS); txt(T.compCols[0], cx[0], y); txt(T.compCols[1], cx[1], y, { align: "right" }); txt(T.compCols[2], cx[2], y, { align: "right" }); y += 3;
+    D.tiers.forEach((tt, i) => {
+      const cur = i === D.tierIdx;
+      if (cur) { doc.setFillColor(BANDA[0], BANDA[1], BANDA[2]); doc.rect(M, y, CW, 6, "F"); }
+      font(cur ? "bold" : "normal", 8.8, INK);
+      txt(TIERS[i][lang] + (cur ? "  " + T.sel : ""), cx[0], y + 4.1); txt(mn(tt.base), cx[1], y + 4.1, { align: "right" }); txt(mn(tt.total), cx[2], y + 4.1, { align: "right" }); y += 6;
+    });
+    y += 4;
+  }
+
+  /* forma de pago */
+  ensure(40); heading(T.pago);
+  const px = [M + 2, M + 128, M + CW - 2];
+  font("bold", 7.8, GRIS); txt(T.pagoCols[0], px[0], y); txt(T.pagoCols[1], px[1], y, { align: "right" }); txt(T.pagoCols[2], px[2], y, { align: "right" }); y += 3;
+  let acc = 0;
+  s.pago.forEach((p, i) => {
+    const amt = i === s.pago.length - 1 ? r2(R.total - acc) : r2(R.total * num(p) / 100); acc = r2(acc + amt);
+    font("normal", 8.8, INK); doc.splitTextToSize(T.hitos[i], 112).forEach((l, j) => { txt(l, px[0], y + 4.1 + j * 4); });
+    txt(fmtN(num(p), lang) + " %", px[1], y + 4.1, { align: "right" }); font("bold", 8.8, INK); txt(mn(amt), px[2], y + 4.1, { align: "right" });
+    y += 6.3; doc.setDrawColor(LINE[0], LINE[1], LINE[2]); doc.setLineWidth(0.15); doc.line(M, y - 0.8, M + CW, y - 0.8);
+  });
+  y += 4.5;
+  para(T.transf + (co.iban ? "  " + T.iban(co.iban) : ""), { size: 8.3, gap: 1 });
+  para(T.plazo(R.dias[0], R.dias[1]), { size: 8.3, gap: 1 });
+  para(T.validez(D.validez), { size: 8.3, gap: 1 });
+
+  /* observaciones y avisos */
+  if (s.obs.trim()) { heading(T.obs); para(s.obs.trim(), { size: 8.3, lh: 4.1, gap: 1 }); }
+  const av = avisos(s);
+  if (av.length) { heading(T.avis); bullets(av.map(a => a[lang])); }
+
+  /* condiciones */
+  heading(T.nat); para(T.nature, { size: 8.3, lh: 4.1, gap: 1 });
+  heading(T.inc); bullets(T.incluye({ s, res: R.res }));
+  heading(T.exc); bullets(T.excluye({ s, res: R.res }));
+  heading(T.lic); bullets(T.licencias());
+  if (R.res.mode !== "ninguno" || s.al.demol) { heading(T.resid); bullets(T.residuos({ res: R.res })); }
+  heading(T.ivaH); para(T.ivaTxt({ ivaPct: R.ivaPct }), { size: 8.3, lh: 4.1, gap: 1 });
+
+  /* aceptación */
+  ensure(46); heading(T.acept);
+  const sw = (CW - 8) / 2;
+  [[M, T.porEmp], [M + sw + 8, T.conforme]].forEach(b => {
+    doc.setDrawColor(LINE[0], LINE[1], LINE[2]); doc.setLineWidth(0.3); doc.roundedRect(b[0], y, sw, 28, 1.5, 1.5, "S");
+    font("normal", 7.8, GRIS); doc.splitTextToSize(b[1], sw - 6).forEach((l, i) => txt(l, b[0] + 3, y + 5 + i * 3.6));
+  });
+  y += 32;
+  para(T.datos(co), { size: 7.2, lh: 3.5, color: GRIS });
+
+  /* pie en todas las páginas */
+  const n = doc.getNumberOfPages();
+  for (let i = 1; i <= n; i++) {
+    doc.setPage(i); doc.setDrawColor(LINE[0], LINE[1], LINE[2]); doc.setLineWidth(0.25); doc.line(M, H - 13, M + CW, H - 13);
+    font("normal", 7.5, GRIS);
+    txt(`${co.razon}${co.cif ? "  ·  " + T.cif + " " + co.cif : ""}`, M, H - 9);
+    txt(`${D.numero}  ·  ${T.pag(i, n)}`, W - M, H - 9, { align: "right" });
+  }
+  return doc;
+}
+
+if (false) module.exports = { TIERS, CAPS, ITEMS, LANG, r2, num, fmt, fmtN, money, validaDocumento, geom, resInfo, calcTier, avisos, buildPdf };
+
+/* ===== INTERFAZ ===== */
+(function () {
+  "use strict";
+  const $ = (s, r) => (r || document).querySelector(s);
+  const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const LS_S = "deldim-bano-v1", LS_A = "deldim-bano-ajustes-v1";
+  const store = {
+    get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+    del(k) { try { localStorage.removeItem(k); } catch (e) {} }
+  };
+  const getP = (o, p) => p.split(".").reduce((a, k) => (a == null ? a : a[k]), o);
+  const setP = (o, p, v) => { const a = p.split("."), l = a.pop(); a.reduce((x, k) => x[k], o)[l] = v; };
+  const merge = (d, s) => {
+    if (Array.isArray(d)) return Array.isArray(s) ? s.slice(0, d.length).concat(d.slice(s.length)) : d.slice();
+    if (d && typeof d === "object") { const o = {}; for (const k in d) o[k] = merge(d[k], s && typeof s === "object" ? s[k] : undefined); if (s && typeof s === "object") for (const k in s) if (!(k in o) && k === "precios") o[k] = s[k]; return o; }
+    return s === undefined || s === null ? d : s;
+  };
+
+  /* ---- datos de la empresa por defecto (CIF y domicilio pendientes) ---- */
+  const DEF_SET = () => ({
+    company: Object.assign({}, EMPRESA),
+    validez: 30, rMenos: 5, rMas: 10, factor: 0, precios: {}, contador: 0
+  });
+  const DEF = () => ({
+    nombre: "", doc: "", tel: "", email: "", calle: "", cp: "", muni: "Málaga",
+    tipo: "piso", planta: 1, ascensor: true, uso: "particular", antiguedad: true,
+    flags: { edificioAntiguo: false, sinVentilacion: false, redistribucion: false },
+    largo: 2.4, ancho: 2, altura: 2.5, ventana: false, alicatado: "completo", techoExistente: false,
+    gama: 1, ducha: "ducha",
+    al: { demol: true, fontaneria: true, albanileria: true, solado: true, alicatado: true, falsoTecho: true, pintura: true, electricidad: true, ventilacion: true,
+          inodoro: true, lavabo: true, mampara: true, espejo: true, accesorios: true, bide: false, hornacina: false, toallero: false, puerta: false, proteccion: true, limpieza: true },
+    residuos: "auto", iva: 10, ivaManual: false, dto: 0, pago: [30, 40, 30], comparar: true, lang: "es",
+    obs: "", libreDesc: "", libreImp: "", numero: ""
+  });
+
+  let set = merge(DEF_SET(), store.get(LS_A));
+  if (store.get(LS_A) && store.get(LS_A).precios) set.precios = store.get(LS_A).precios;
+  Object.keys(EMPRESA).forEach(k => { if (!set.company[k]) set.company[k] = EMPRESA[k]; });
+  let s = merge(DEF(), store.get(LS_S));
+  const openCaps = new Set();
+  let forceDoc = false, last = null;
+
+  const ALC = [
+    ["Obra", [["demol", "Demolición y retirada de lo existente"], ["fontaneria", "Renovar fontanería y desagües"], ["albanileria", "Regularizar suelo e impermeabilizar"], ["solado", "Pavimento nuevo"], ["alicatado", "Alicatado nuevo"], ["falsoTecho", "Falso techo con focos LED"], ["pintura", "Pintura"]]],
+    ["Instalaciones", [["electricidad", "Renovar instalación eléctrica del baño"], ["ventilacion", "Extractor de ventilación"], ["toallero", "Radiador toallero eléctrico"], ["hornacina", "Hornacina en la ducha"]]],
+    ["Sanitarios y equipamiento", [["inodoro", "Inodoro"], ["lavabo", "Mueble de lavabo y grifo"], ["mampara", "Mampara"], ["espejo", "Espejo"], ["accesorios", "Accesorios"], ["bide", "Bidé"]]],
+    ["Otros", [["puerta", "Puerta de paso nueva"], ["proteccion", "Protección de zonas comunes"], ["limpieza", "Limpieza final"]]]
+  ];
+
+  /* ---- construcción de bloques estáticos ---- */
+  function build() {
+    $("#logo").src = LOGO;
+    $("#alcance").innerHTML = ALC.map(g => `<div class="gtitle">${g[0]}</div><div class="chks">${g[1].map(i => `<label class="chk"><input type="checkbox" data-k="al.${i[0]}"> ${i[1]}</label>`).join("")}</div>`).join("");
+    $("#tiers").innerHTML = TIERS.map((t, i) => `<label class="card"><input type="radio" name="gama" value="${i}" data-k="gama" data-type="n"><h3>${t.es}</h3><p>${esc(t.bes)}</p><div class="price"><span data-tt="${i}"></span> <small>sin IVA</small></div></label>`).join("");
+    $("#resCards").innerHTML = [["cuba", "Cuba"], ["sacos", "Sacos big bag"], ["ninguno", "Lo gestiona el cliente"]].map(r =>
+      `<label class="card" data-rc="${r[0]}"><input type="radio" name="resid" value="${r[0]}" data-k="residuos"><span class="tag rec" data-rec="${r[0]}" hidden>Recomendado</span><h3 data-rt="${r[0]}">${r[1]}</h3><p data-rd="${r[0]}"></p><div class="price" data-rp="${r[0]}"></div></label>`).join("");
+    const rows = ITEMS.map(it => `<div class="prow"><div class="n"><i>${it.id}</i>${esc(it.n[0])} <i>(${it.ud})</i></div><div class="ins">${[0, 1, 2].map(t => `<label>${TIERS[t].es}<input type="number" step="any" min="0" inputmode="decimal" data-pid="${it.id}" data-t="${t}" value="${precio(it.id, t)}"></label>`).join("")}</div></div>`);
+    $("#precios").innerHTML = rows.join("");
+    $$("[data-sk]").forEach(el => { el.value = getP(set, el.dataset.sk) == null ? "" : getP(set, el.dataset.sk); });
+    markChanged();
+  }
+  function precio(id, t) { const ov = set.precios[id]; const it = ITEMS.find(x => x.id === id); return ov && ov[t] != null ? ov[t] : it.p[t]; }
+  function markChanged() {
+    $$("[data-pid]").forEach(el => { const it = ITEMS.find(x => x.id === el.dataset.pid); el.classList.toggle("chg", num(el.value) !== it.p[+el.dataset.t]); });
+  }
+
+  /* ---- sincronizar controles con el estado ---- */
+  function sync() {
+    $$("[data-k]").forEach(el => {
+      const v = getP(s, el.dataset.k);
+      if (el.type === "checkbox") el.checked = !!v;
+      else if (el.type === "radio") { if (el.name === "resid") return; el.checked = String(v) === el.value; }
+      else if (document.activeElement !== el) el.value = v == null ? "" : v;
+    });
+    $("#pisoOnly").hidden = s.tipo !== "piso";
+  }
+
+  /* ---- actualización principal ---- */
+  function update(noSave) {
+    if (!s.ivaManual) s.iva = s.uso === "particular" && s.antiguedad ? 10 : 21;
+    const tiers = [0, 1, 2].map(t => calcTier(s, set, t));
+    const cur = tiers[s.gama];
+    last = { tiers, cur };
+    sync();
+
+    TIERS.forEach((t, i) => { const e = $(`[data-tt="${i}"]`); if (e) e.textContent = money(tiers[i].base, "es"); });
+    const g = cur.g;
+    $("#geomRead").textContent = `Suelo ${fmtN(g.S)} m² · paredes ${fmtN(g.paredes)} m² · alicatado ${fmtN(g.tile)} m² · escombro estimado ${fmtN(g.vol)} m³`;
+
+    /* documento */
+    const dv = validaDocumento(s.doc), dh = $("#docHint");
+    if (!s.doc.trim()) { dh.textContent = ""; dh.className = "hint"; }
+    else if (dv) { dh.textContent = dv + " con formato válido"; dh.className = "hint ok"; }
+    else { dh.textContent = "El formato no parece válido. Revisa dígitos y letra."; dh.className = "hint bad"; }
+
+    /* avisos de riesgo */
+    const av = avisos(s), ab = $("#avisosBox");
+    const hi = av.some(a => a.lvl === 3);
+    ab.className = "box mt" + (av.length ? " warn" : "");
+    ab.innerHTML = av.length
+      ? `<span class="chip ${hi ? "high" : "mid"}">${hi ? "Posible nivel 3: derivar a técnico externo" : "Atención especial"}</span><ul>${av.map(a => `<li>${esc(a.es)}</li>`).join("")}</ul><div style="margin-top:8px">DELDIM no asume dirección facultativa ni validación urbanística, salvo contratación expresa por escrito.</div>`
+      : `<span class="chip">Nivel 2: reforma técnica moderada</span> <span style="margin-left:6px">Sin aspectos especiales marcados.</span>`;
+
+    /* residuos */
+    const ri = cur.resInfo, vol = g.vol;
+    const cubaTxt = ri.size === 6 && ri.nCuba >= 1 ? `${ri.nCuba > 1 ? ri.nCuba + " cubas" : "Cuba"} de 6 m³` : "Cuba de 4 m³";
+    $("[data-rt=cuba]").textContent = cubaTxt;
+    $("[data-rt=sacos]").textContent = `${ri.nSacos} sacos big bag de 1 m³`;
+    $("[data-rd=cuba]").textContent = "Con transporte y gestión. Si va en la calle hay que pedir autorización municipal.";
+    $("[data-rd=sacos]").textContent = "Se llenan dentro de la vivienda y se retiran con camión. Evitan ocupar la calle.";
+    $("[data-rd=ninguno]").textContent = "No se incluye en el presupuesto.";
+    const pc = ri.size === 6 ? precio("09.02", s.gama) : precio("09.01", s.gama);
+    $("[data-rp=cuba]").textContent = vol > 0 ? money(r2(pc * ri.nCuba * (1 + num(set.factor) / 100)), "es") : "";
+    $("[data-rp=sacos]").textContent = vol > 0 ? money(r2(precio("09.03", s.gama) * ri.nSacos * (1 + num(set.factor) / 100)), "es") : "";
+    $("[data-rp=ninguno]").textContent = "";
+    $$("[data-rc]").forEach(l => {
+      const v = l.dataset.rc, on = (s.residuos === "auto" ? ri.mode : s.residuos) === v;
+      $("input", l).checked = on; $("[data-rec]", l).hidden = !(vol > 0 && ri.rec === v);
+    });
+    let why = "";
+    if (vol <= 0) why = "No hay demolición en el alcance, así que no se calcula escombro.";
+    else if (s.tipo === "casa") why = "Recomendado: cuba. En una casa suele haber sitio para colocarla.";
+    else if (ri.rec === "sacos") why = "Recomendado: sacos. En un piso evitan ocupar la calle y tramitar el permiso de la cuba.";
+    else why = `Recomendado: cuba de ${ri.size} m³, por el volumen de escombro.`;
+    $("#resInfo").innerHTML = `<b>Escombro estimado: ≈ ${fmtN(vol)} m³</b> (ya con esponjamiento). ${esc(why)}<br><br><b>Permiso de la cuba:</b> si va en la vía pública, la autorización municipal y su tasa son responsabilidad del cliente, como promotor. DELDIM puede tramitarla en su nombre si el cliente lo pide por escrito; la tasa se repercute a coste y no va en este importe. Si va en garaje o parcela privada, conviene confirmar con la comunidad o el propietario. Los plazos pueden retrasar el inicio de la obra.`;
+
+    /* IVA */
+    let ih;
+    if (s.ivaManual) ih = `Tipo elegido a mano. <button class="link" type="button" data-act="ivaAuto">Volver al automático</button>`;
+    else if (s.iva === 10) ih = "10 %: vivienda de uso particular, terminada hace más de 2 años. El cliente debe declararlo, y los materiales que aporta DELDIM no pueden superar el 40 % de la base.";
+    else ih = s.uso !== "particular" ? "21 %: la vivienda no es de uso particular." : "21 %: la vivienda tiene menos de 2 años.";
+    $("#ivaHint").innerHTML = ih;
+
+    /* pago */
+    const ps = s.pago.reduce((a, b) => a + num(b), 0), ph = $("#pagoHint");
+    ph.textContent = ps === 100 ? "Suma 100 %." : `Suman ${fmtN(ps)} %. Deben sumar 100 %.`; ph.className = "hint " + (ps === 100 ? "ok" : "bad");
+
+    /* resultado */
+    $("#tierChip").textContent = "Gama " + TIERS[s.gama].es;
+    $("#bigTotal").textContent = money(cur.total, "es");
+    $("#barTotal").textContent = money(cur.total, "es");
+    $("#subTotal").textContent = `${money(cur.base, "es")} + IVA ${cur.ivaPct} % (${money(cur.iva, "es")})`;
+    $("#horq").textContent = `Horquilla tras la visita: ${money(cur.low, "es")} a ${money(cur.high, "es")}`;
+    $("#tierList").innerHTML = tiers.map((t, i) => `<button class="tierrow" type="button" data-tier="${i}" aria-pressed="${i === s.gama}"><b>${TIERS[i].es}</b><span>${money(t.base, "es")} + IVA</span><strong>${money(t.total, "es")}</strong></button>`).join("");
+    $("#desglose").innerHTML = cur.caps.map(c => `<details class="cap" data-cap="${c.cap}"${openCaps.has(c.cap) ? " open" : ""}><summary><span class="t">${String(c.cap).padStart(2, "0")} · ${CAPS[c.cap].es}</span><span>${money(c.sub, "es")}</span></summary>${c.lines.map(l => `<div class="ln"><span class="c">${l.id}</span><span>${esc(l.n[0])}${l.d ? `<span class="d">${esc(l.d.es)}</span>` : ""}<span class="q">${fmtN(l.q)} ${l.ud} × ${fmt(l.price, 2)}</span></span><b>${fmt(l.imp, 2)}</b></div>`).join("")}</details>`).join("");
+    const share = Math.round(cur.matShare * 100), over = share > 40 && cur.ivaPct === 10;
+    $("#interno").className = "int box" + (over ? " warn" : "");
+    $("#interno").innerHTML = `<b>Solo uso interno, no sale en el PDF.</b><br>Materiales ≈ ${share} % de la base (estimado).${over ? " Supera el 40 %: confirma con la gestoría el tipo de IVA antes de enviar el presupuesto." : ""}<br>Plazo orientativo: ${cur.dias[0]} a ${cur.dias[1]} días laborables.`;
+    $("#f-num").placeholder = numeroAuto();
+    if (!noSave) store.set(LS_S, s);
+  }
+  const numeroAuto = () => `EB-${new Date().getFullYear()}-${String((set.contador || 0) + 1).padStart(3, "0")}`;
+
+  /* ---- eventos ---- */
+  function onField(e) {
+    const el = e.target;
+    if (el.dataset.k) {
+      let v;
+      if (el.type === "checkbox") v = el.checked;
+      else if (el.type === "radio") { if (!el.checked) return; v = el.dataset.type === "n" ? Number(el.value) : el.value; }
+      else v = el.type === "number" ? (el.value === "" ? "" : Number(el.value)) : el.value;
+      if (el.dataset.k.startsWith("pago.")) v = num(v);
+      setP(s, el.dataset.k, v);
+      if (el.dataset.k === "iva") s.ivaManual = true;
+      if (el.dataset.k === "tipo") s.al.proteccion = v === "piso";
+      if (el.dataset.k === "doc") forceDoc = false;
+      update();
+    } else if (el.dataset.sk) {
+      const v = el.type === "number" ? (el.value === "" ? 0 : Number(el.value)) : el.value;
+      setP(set, el.dataset.sk, v); store.set(LS_A, set); update(true);
+    } else if (el.dataset.pid) {
+      const id = el.dataset.pid, t = +el.dataset.t, it = ITEMS.find(x => x.id === id);
+      const arr = (set.precios[id] || it.p.slice());
+      arr[t] = el.value === "" ? it.p[t] : Number(el.value);
+      if (arr.every((x, i) => x === it.p[i])) delete set.precios[id]; else set.precios[id] = arr;
+      store.set(LS_A, set); markChanged(); update(true);
+    }
+  }
+  document.addEventListener("input", onField);
+  document.addEventListener("change", e => { if (e.target.type === "radio" && e.target.name === "resid") { s.residuos = e.target.value; update(); } else if (e.target.type === "radio" || e.target.type === "checkbox" || e.target.tagName === "SELECT") onField(e); });
+
+  let nuevoTimer = null;
+  document.addEventListener("click", e => {
+    const tr = e.target.closest("[data-tier]");
+    if (tr) { s.gama = +tr.dataset.tier; update(); return; }
+    const b = e.target.closest("[data-act]"); if (!b) return;
+    const a = b.dataset.act;
+    if (a === "ajustes") { $("#sheet").hidden = false; }
+    else if (a === "cerrar") { $("#sheet").hidden = true; }
+    else if (a === "ivaAuto") { s.ivaManual = false; update(); }
+    else if (a === "resetPrecios") { set.precios = {}; store.set(LS_A, set); $$("[data-pid]").forEach(el => { el.value = ITEMS.find(x => x.id === el.dataset.pid).p[+el.dataset.t]; }); markChanged(); update(true); toast("Precios restablecidos"); }
+    else if (a === "nuevo") {
+      if (!nuevoTimer) { b.textContent = "¿Borrar todo? Pulsa otra vez"; b.classList.add("warn"); nuevoTimer = setTimeout(() => { b.textContent = "Nuevo"; b.classList.remove("warn"); nuevoTimer = null; }, 4000); }
+      else { clearTimeout(nuevoTimer); nuevoTimer = null; b.textContent = "Nuevo"; b.classList.remove("warn"); s = DEF(); forceDoc = false; $("#msg").textContent = ""; update(); window.scrollTo(0, 0); toast("Presupuesto nuevo"); }
+    }
+    else if (a === "copiar") copiar();
+    else if (a === "pdf") generar();
+  });
+  $("#sheet").addEventListener("click", e => { if (e.target === $("#sheet")) $("#sheet").hidden = true; });
+  document.addEventListener("keydown", e => { if (e.key === "Escape") $("#sheet").hidden = true; });
+  document.addEventListener("toggle", e => { const d = e.target; if (d.classList && d.classList.contains("cap")) { const n = +d.dataset.cap; if (d.open) openCaps.add(n); else openCaps.delete(n); } }, true);
+
+  /* ---- utilidades de interfaz ---- */
+  let tt = null;
+  function toast(t) { const e = $("#toast"); e.textContent = t; e.hidden = false; clearTimeout(tt); tt = setTimeout(() => { e.hidden = true; }, 2600); }
+  function msg(t, k) { const m = $("#msg"); m.textContent = t; m.className = "msg " + (k || ""); }
+  async function copiar() {
+    const { tiers, cur } = last, nm = s.nombre.trim() || "cliente";
+    const t = `Estimación de reforma de baño para ${nm}\nGama ${TIERS[s.gama].es}: ${money(cur.base, "es")} + IVA ${cur.ivaPct} % = ${money(cur.total, "es")}\nOtras gamas (sin IVA): ${tiers.map((x, i) => i === s.gama ? null : `${TIERS[i].es} ${money(x.base, "es")}`).filter(Boolean).join(" · ")}\nEs una estimación orientativa, sujeta a visita técnica. ${set.company.razon}`;
+    try { await navigator.clipboard.writeText(t); toast("Resumen copiado"); } catch (e) { toast("No se pudo copiar en este visor"); }
+  }
+  const slug = x => String(x).normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^A-Za-z0-9]+/g, "_").replace(/^_|_$/g, "").slice(0, 30);
+
+  /* Guardado: dentro de Claude usa la capacidad "downloads"; en el móvil abre el menú de compartir (WhatsApp, Archivos...); en ordenador descarga el PDF. */
+  async function guardarPdf(filename, blob) {
+    let dl = null;
+    try { dl = window.claude && window.claude.use ? await window.claude.use("downloads") : null; } catch (e) { dl = null; }
+    if (dl) { await dl.save({ filename, data: blob }); return; }
+    const coarse = window.matchMedia && window.matchMedia("(pointer:coarse)").matches;
+    if (coarse && navigator.canShare && navigator.share) {
+      const file = new File([blob], filename, { type: "application/pdf" });
+      if (navigator.canShare({ files: [file] })) {
+        try { await navigator.share({ files: [file], title: filename }); return; }
+        catch (e) { if (e && e.name === "AbortError") { const er = new Error("cancelado"); er.code = "declined"; throw er; } }
+      }
+    }
+    const url = URL.createObjectURL(blob), a = document.createElement("a");
+    a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+  }
+
+  async function generar() {
+    const miss = [];
+    if (!s.nombre.trim()) miss.push("nombre del cliente");
+    if (!s.doc.trim()) miss.push("DNI/NIE");
+    if (!s.calle.trim()) miss.push("dirección de la obra");
+    if (miss.length) { msg("Falta: " + miss.join(", ") + ".", "warn"); const f = !s.nombre.trim() ? "#f-nombre" : !s.doc.trim() ? "#f-doc" : "#f-calle"; $(f).focus(); return; }
+    const ps = s.pago.reduce((a, b) => a + num(b), 0);
+    if (ps !== 100) { msg("Los porcentajes de pago deben sumar 100 %.", "warn"); return; }
+    if (!validaDocumento(s.doc) && !forceDoc) { forceDoc = true; msg("El DNI/NIE no parece válido. Corrígelo o pulsa de nuevo para generar el PDF igualmente.", "warn"); $("#f-doc").focus(); return; }
+    const lib = window.jspdf && window.jspdf.jsPDF;
+    if (!lib) { msg("No se pudo cargar el generador de PDF. Comprueba la conexión y recarga la página.", "warn"); return; }
+    const btns = [$("#btnPdf"), $("#btnPdf2")]; btns.forEach(b => { b.disabled = true; });
+    try {
+      const { tiers, cur } = last, numero = s.numero.trim() || numeroAuto();
+      const D = { lang: s.lang, s, r: cur, tier: TIERS[s.gama], tierIdx: s.gama, tiers, comparar: s.comparar, numero,
+        fecha: new Date().toLocaleDateString("es-ES", { day: "2-digit", month: "2-digit", year: "numeric" }), validez: num(set.validez) || 30, logo: LOGO, company: set.company };
+      const doc = buildPdf(lib, D);
+      const filename = `Estimacion_bano_${numero}_${slug(s.nombre)}.pdf`;
+      await guardarPdf(filename, doc.output("blob"));
+      if (!s.numero.trim()) { set.contador = (set.contador || 0) + 1; store.set(LS_A, set); update(true); }
+      msg("PDF generado: " + filename, "ok");
+    } catch (e) {
+      if (e && e.code === "declined") msg("Descarga cancelada.");
+      else msg("No se pudo guardar el PDF" + (e && e.code ? " (" + e.code + ")" : "") + ".", "warn");
+    } finally { btns.forEach(b => { b.disabled = false; }); }
+  }
+
+  build(); update(true);
+})();
+
+</script>
+<script>
+if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) {
+  window.addEventListener("load", function () { navigator.serviceWorker.register("sw.js").catch(function () {}); });
+}
+</script>
+</body>
+</html>
